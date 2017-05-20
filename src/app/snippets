@@ -1,0 +1,28 @@
+###########
+Insterting components.
+###########
+//In ngmodule
+entryComponents:[
+	DefaultHomeComponent
+],
+
+
+// in the actual component
+import { ViewChild, ViewContainerRef, ComponentFactoryResolver, Component,OnInit } from '@angular/core';
+
+//Start class with
+export class AppComponent implements OnInit {
+  @ViewChild('playgroundapp', { read: ViewContainerRef }) target: ViewContainerRef;
+
+// in constructor
+private cfr: ComponentFactoryResolver
+
+//Where we want to insert
+this.target.clear();
+let compFactory = this.cfr.resolveComponentFactory(DefaultHomeComponent)
+this.target.createComponent(compFactory);
+
+//In html
+<ng-template #playgroundapp>{{message}}</ng-template>
+
+############

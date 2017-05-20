@@ -1,19 +1,28 @@
+//Angular modules
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import {DefaultHomeComponent} from "./defaultHome.component"
+import {AppComponent} from "./app.component";
 
-import { DashboardComponent } from './dashboard.component';
-import { HeroesComponent } from './heroes.component';
-import { HeroDetailComponent } from './hero-detail.component';
+
+
 
 const routes: Routes = [
-  { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
-  { path: 'dashboard', component: DashboardComponent },
-  { path: 'detail/:id', component: HeroDetailComponent },
-  { path: 'heroes', component: HeroesComponent }
+  { path: 'home', component: DefaultHomeComponent, pathMatch:'full'},
+  { path: 'dashboard', component: DefaultHomeComponent, pathMatch:'full'},
+  // { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
+//   { path: 'detail/:id', component: HeroDetailComponent },
+//   { path: 'heroes', component: HeroesComponent }
+
 ];
 
-@NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
-})
-export class AppRoutingModule { }
+
+/**
+ * Set up the router module
+ */
+ @NgModule({
+   imports: [RouterModule.forRoot(routes)],
+   exports: [RouterModule]
+ })
+ export class AppRoutingModule { }
+
