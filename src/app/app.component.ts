@@ -10,26 +10,33 @@ import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import {DefaultHomeComponent} from "./defaultHome.component";
 import {CurrentUserService} from './services/current-user.service';
 
+//Events
+import {startLoadingMessage,completeLoadingMessage,successNotification,errorNotification,alertNotification,warnNotification,infoNotification} from './events/events';
+import {MessageBus} from "./services/message-bus.service";
+import {PlaygroundNotifications} from "./components/playground-notifications"
+
+
 @Component({
   selector: 'playground-root',
   templateUrl: 'template/app.template.html',
-  styleUrls: ['../styles/bundle.css'],
-  viewProviders: [CurrentUserService]
+
 })
 
-
+/**
+ * Root class for App component .
+ */
 export class AppComponent implements OnInit {
 
   private title = 'Playground';
   private currentUser:any = "";
   private message = "Please wait while the app initializes...."
 
+
   ngOnInit () {
     let self=this;
 
     self.currentUserService.getCurrentUser().then(
       (currentUser)=>{
-        self.completeLoading("");
         self.currentUser = currentUser;
         self.message = null;
 
@@ -37,18 +44,24 @@ export class AppComponent implements OnInit {
         if (false ==  self.currentUser){
           //User was not found
           self.loadHome(false);
+          //Publish the loading message to message bus
         }
         else{
           self.loadHome(true);
         }
+
+        self.msgBus.publish(new completeLoadingMessage());
+        
       }
     ).catch(
       // Log the rejection reason
       (reason) => {
-        self.message= "Error Occured trying to load the application. "
+        self.message= "Error Occurred trying to load the application. "
       });
 
-    self.startLoading("");
+
+    //Publish the loading message to message bus
+    self.msgBus.publish(new startLoadingMessage(self.message))
   }
 
   /**
@@ -58,23 +71,31 @@ export class AppComponent implements OnInit {
   constructor(private currentUserService: CurrentUserService
     ,private slimLoadingBarService: SlimLoadingBarService
     ,private router: Router
+    ,private msgBus:MessageBus
   ) {
-      //constructor
+
+    let self=this;
+
+    //Start the loading bar
+    this.msgBus.listenFor(startLoadingMessage)
+      .subscribe(startLoadingMessage => {
+        self.message = startLoadingMessage.message;
+        self.slimLoadingBarService.start(() => { });
+      });
+
+    //Complete the loading bar
+    this.msgBus.listenFor(completeLoadingMessage)
+      .subscribe(completeLoadingMessage => {
+        self.message = null;
+        self.slimLoadingBarService.complete();
+      });
+
   }
 
-  /**
-   * Start loading bar
-   */
-  startLoading(event:string) {
-    this.slimLoadingBarService.start(() => { });
+  ngOnDestroy() {
+    //Destroy the listens ?? @todo
   }
 
-  /**
-   * Stop Loading bar
-   */
-  completeLoading(event:string) {
-    this.slimLoadingBarService.complete();
-  }
 
   /**
    * Load the homepage
